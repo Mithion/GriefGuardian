@@ -1,0 +1,12 @@
+eclipse/
+bin/
+.project
+.settings/org.eclipse.jdt.core.prefs
+CREDITS-fml.txt
+LICENSE-fml.txt
+MinecraftForge-Credits.txt
+MinecraftForge-License.txt
+README.txt
+forge-1.7.2-10.12.2.1147-changelog.txt
+.gradle/
+.classpath

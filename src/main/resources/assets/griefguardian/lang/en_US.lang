@@ -1,0 +1,8 @@
+griefguardian.commands.claimstart=Claim started.  Run the command again at the opposite corner of the area you want to claim.
+griefguardian.commands.claimtoosmall=That claim is too small.  Claims must be 8x8 at minimum.
+griefguardian.commands.syncing=Syncing your claims so you can see them.  They'll appear shortly.
+
+griefguardian.actionresult.success=Success!
+griefguardian.actionresult.denied=You don't have access to do that.
+griefguardian.actionresult.noclaim=There's no claim here.
+griefguardian.actionresults.claimintersects=This claim would intersect another claim.  Try a different area.
