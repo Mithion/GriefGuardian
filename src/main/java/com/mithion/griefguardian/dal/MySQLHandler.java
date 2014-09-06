@@ -10,6 +10,14 @@ import com.mithion.griefguardian.GriefGuardian;
 import com.mithion.griefguardian.config.ConfigKeys;
 import com.mithion.griefguardian.logging.GGLog;
 
+/*
+ * MySQL Data Access Layer class
+ * Handles all interactions between MySQL and this mod
+ * 
+ * Author: Mithion
+ * Sept 6, 2014
+ * 
+ */
 public class MySQLHandler {
 	private Connection _connection;
 	private Statement _statement;

@@ -4,10 +4,20 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.HashMap;
 
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import cpw.mods.fml.common.network.ByteBufUtils;
 
+/**
+ * Contains all data fpr one given claim.
+ * This includes the location, size, owner, and ACLs.
+ * 
+ * Author: Mithion
+ * Sept 6, 2014
+ * 
+ */
 public class Claim{
 	private String claimOwner;		
 	private HashMap<String, PermissionsMutex> claimPermissions;
@@ -22,7 +32,13 @@ public class Claim{
 	}
 	
 	public Claim(ByteBuf buf){
+		claimPermissions = new HashMap<String, PermissionsMutex>();
 		readFromByteBuf(buf);
+	}
+	
+	public Claim(NBTTagCompound compound){
+		claimPermissions = new HashMap<String, PermissionsMutex>();
+		readFromNBT(compound);
 	}
 
 	/**
@@ -125,7 +141,6 @@ public class Claim{
 	public void readFromByteBuf(ByteBuf buf){
 		claimOwner = ByteBufUtils.readUTF8String(buf);
 		claimBounds = AxisAlignedBB.getBoundingBox(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(),buf.readDouble(), buf.readDouble());
-		claimPermissions = new HashMap<String, PermissionsMutex>();
 		int numPermRecords = buf.readInt();
 		for (int i = 0; i < numPermRecords; ++i){
 			String s = ByteBufUtils.readUTF8String(buf);
@@ -150,5 +165,45 @@ public class Claim{
 
 	public void setClaimOwner(String newOwner) {
 		this.claimOwner = newOwner;
+	}
+
+	public void writeToNBT(NBTTagCompound comp) {
+		comp.setString("claim_owner", claimOwner);
+		comp.setDouble("bounds_min_x", claimBounds.minX);
+		comp.setDouble("bounds_min_y", claimBounds.minY);
+		comp.setDouble("bounds_min_z", claimBounds.minZ);
+		comp.setDouble("bounds_max_x", claimBounds.maxX);
+		comp.setDouble("bounds_max_y", claimBounds.maxY);
+		comp.setDouble("bounds_max_z", claimBounds.maxZ);
+		
+		NBTTagList tagList = new NBTTagList();
+		for (String s : claimPermissions.keySet()){
+			NBTTagCompound permissionCompound = new NBTTagCompound();
+			permissionCompound.setString("permission_identifier", s);
+			permissionCompound.setInteger("permission_mask", claimPermissions.get(s).getMask());
+			
+			tagList.appendTag(permissionCompound);
+		}
+		
+		comp.setTag("permission_records", tagList);
+	}
+	
+	public void readFromNBT(NBTTagCompound comp){
+		claimOwner = comp.getString("claim_owner");
+		claimBounds = AxisAlignedBB.getBoundingBox(
+				comp.getDouble("bounds_min_x"), 
+				comp.getDouble("bounds_min_y"), 
+				comp.getDouble("bounds_min_z"), 
+				comp.getDouble("bounds_max_x"), 
+				comp.getDouble("bounds_max_y"), 
+				comp.getDouble("bounds_max_z"));
+		
+		NBTTagList tagList = comp.getTagList("permission_records", 10);
+		for (int i = 0; i < tagList.tagCount(); ++i){
+			NBTTagCompound permissionCompound = tagList.getCompoundTagAt(i);
+			String identifier = permissionCompound.getString("permission_identifier");
+			int mask = permissionCompound.getInteger("permission_mask");
+			claimPermissions.put(identifier, new PermissionsMutex(mask));
+		}
 	}
 }

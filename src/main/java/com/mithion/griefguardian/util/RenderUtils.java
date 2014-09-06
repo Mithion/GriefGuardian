@@ -12,18 +12,21 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class RenderUtils {
 	public static void renderBoundingBox(AxisAlignedBB boundingBox, int boxColor, int outlineColor){
 		Tessellator tessellator = Tessellator.instance;
-		int alpha = 128;
+		int alpha = 60;
 		double XOffset = 0.5;
 		double YOffset = 0.5;
 		double ZOffset = 0.5;
 		
 		boundingBox = boundingBox.contract(0.01, 0.01, 0.01);
-		GL11.glPushAttrib(GL11.GL_COLOR_BUFFER_BIT);
+		GL11.glPushAttrib(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
 		
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		RenderHelper.disableStandardItemLighting();
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_CULL_FACE);
+		GL11.glDisable(GL11.GL_LIGHTING);
+		//GL11.glDisable(GL11.GL_DEPTH_TEST);
+		GL11.glDepthMask(false);
 		
 		//box
 		tessellator.startDrawingQuads();
@@ -65,7 +68,6 @@ public class RenderUtils {
         
         tessellator.draw();
 		        
-        RenderHelper.enableStandardItemLighting();
         GL11.glDisable(GL11.GL_BLEND);
         
         GL11.glPopAttrib();
@@ -114,6 +116,10 @@ public class RenderUtils {
         tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
         tessellator.draw();
         
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glEnable(GL11.GL_LIGHTING);
+        //GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(true);
 	}
 }

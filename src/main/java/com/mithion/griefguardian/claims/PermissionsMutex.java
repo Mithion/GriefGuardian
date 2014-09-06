@@ -1,5 +1,14 @@
 package com.mithion.griefguardian.claims;
 
+/**
+ * This is the ACL management class - it contains a single bitflag
+ * which determines what actions are allowed.  One of these exists
+ * for each permissions group in each claim.
+ * 
+ * Author: Mithion
+ * Sept 6, 2014
+ * 
+ */
 public class PermissionsMutex {
 	
 	public static final int BREAK_BLOCKS = 0x1;

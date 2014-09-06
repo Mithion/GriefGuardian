@@ -10,25 +10,25 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 
-public class ShowClaims extends CommandBase{
+public class HideClaims extends CommandBase{
 
 	@Override
 	public String getCommandName() {
-		return "showclaims";
+		return "hideclaims";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender commandSender) {
-		return "/showclaims";
+		return "/hideclaims";
 	}
 
 	@Override
 	public void processCommand(ICommandSender commandSender, String[] args) {
 		EntityPlayerMP player = getCommandSenderAsPlayer(commandSender);
-		GriefGuardian.instance.networkWrapper.sendTo(ClaimsList.For(commandSender.getEntityWorld()).createSyncMessage(player), player);
+		GriefGuardian.instance.networkWrapper.sendTo(ClaimsList.For(commandSender.getEntityWorld()).createSyncMessage(player, true), player);
 		
-		PlayerDataUtils.setRenderClaimsData(player, true);
-		commandSender.addChatMessage(new ChatComponentText("griefguardian.commands.showclaims"));
+		PlayerDataUtils.setRenderClaimsData(player, false);
+		commandSender.addChatMessage(new ChatComponentText("griefguardian.commands.hideclaims"));
 	}
 
 }

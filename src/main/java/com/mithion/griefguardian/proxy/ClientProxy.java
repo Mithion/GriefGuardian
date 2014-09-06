@@ -6,8 +6,10 @@ import net.minecraftforge.common.MinecraftForge;
 
 import com.mithion.griefguardian.eventhandlers.ClientEventHandler;
 import com.mithion.griefguardian.eventhandlers.SpamGuardEventHandler;
+import com.mithion.griefguardian.util.PlayerDataUtils;
 
 public class ClientProxy extends CommonProxy {
+	
 	@Override
 	public void registerHandlers() {	
 		super.registerHandlers();
@@ -17,5 +19,10 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public World getClientWorld() {
 		return Minecraft.getMinecraft().theWorld;
+	}
+	
+	@Override
+	public void setRenderClaims(boolean b) {
+		PlayerDataUtils.setRenderClaimsData(Minecraft.getMinecraft().thePlayer, b);
 	}
 }

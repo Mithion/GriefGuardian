@@ -11,10 +11,20 @@ import cpw.mods.fml.common.network.ByteBufUtils;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+/**
+ * Contains all claims for a given world.
+ * Utility methods to alter claims are also in this class.
+ * 
+ * Author: Mithion
+ * Sept 6, 2014
+ * 
+ */
 public class ClaimsList {
 	private HashMap<String, ArrayList<Claim>> claimCache;	
 
@@ -177,7 +187,8 @@ public class ClaimsList {
 
 	public void loadFromSyncPacket(PacketSyncClaims pkt){
 		HashMap<String, ArrayList<Claim>> data = pkt.getData();
-		claimCache.clear();
+		if (!pkt.updateClaims())
+			claimCache.clear();
 		for (String s : data.keySet()){
 			if (!claimCache.containsKey(s))
 				claimCache.put(s, new ArrayList<Claim>());
@@ -186,10 +197,19 @@ public class ClaimsList {
 	}
 
 	public PacketSyncClaims createSyncMessage(EntityPlayer player){
-		ArrayList<Claim> claims = getClaimsForPlayer(player, PermissionsMutex.ALL_FLAGS, true);
+		return createSyncMessage(player, false);
+	}
+
+	public PacketSyncClaims createSyncMessage(EntityPlayer player, boolean isStopRender){		
 		PacketSyncClaims pkt = new PacketSyncClaims();
-		for (Claim claim : claims)
-			pkt.addBoundingBox(player.getCommandSenderName(), claim);
+
+		if (!isStopRender){
+			ArrayList<Claim> claims = getClaimsForPlayer(player, PermissionsMutex.ALL_FLAGS, true);
+			for (Claim claim : claims)
+				pkt.addBoundingBox(player.getCommandSenderName(), claim);
+		}else{
+			pkt.setStopRenderPacket();
+		}
 
 		return pkt;
 	}
@@ -236,5 +256,30 @@ public class ClaimsList {
 		}
 
 		return claims;
+	}
+
+	public void writeToNBT(NBTTagCompound compound) {
+		NBTTagList claimsList = new NBTTagList();
+		for (String s : claimCache.keySet()){
+			ArrayList<Claim> claims = claimCache.get(s);
+			for (Claim claim : claims){
+				NBTTagCompound comp = new NBTTagCompound();
+				claim.writeToNBT(comp);
+				claimsList.appendTag(comp);
+			}			
+		}
+		compound.setTag("claim_data", claimsList);
+	}
+
+	public void readFromNBT(NBTTagCompound compound) {
+		NBTTagList claimsList = compound.getTagList("claim_data", 10);
+		claimCache = new HashMap<String, ArrayList<Claim>>();
+		for (int i = 0; i < claimsList.tagCount(); ++i){
+			NBTTagCompound comp = claimsList.getCompoundTagAt(i);
+			Claim claim = new Claim(comp);
+			if (!claimCache.containsKey(claim.getOwner()))
+				claimCache.put(claim.getOwner(), new ArrayList<Claim>());
+			claimCache.get(claim.getOwner()).add(claim);
+		}
 	}
 }

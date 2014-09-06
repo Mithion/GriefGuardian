@@ -1,7 +1,11 @@
 package com.mithion.griefguardian;
 
+import java.io.File;
+
+import com.mithion.griefguardian.claims.ClaimManager;
 import com.mithion.griefguardian.commands.ClaimCommand;
 import com.mithion.griefguardian.commands.DeleteClaim;
+import com.mithion.griefguardian.commands.HideClaims;
 import com.mithion.griefguardian.commands.ModifyACL;
 import com.mithion.griefguardian.commands.ShowClaims;
 import com.mithion.griefguardian.commands.TransferClaim;
@@ -28,6 +32,14 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 
+/**
+ * Main class for GriefGuardian
+ * A forge mod dedicated to anti-griefing
+ * 
+ * Author: Mithion
+ * Sept 6, 2014
+ * 
+ */
 @Mod(modid = GriefGuardian.MODID, version = GriefGuardian.VERSION)
 public class GriefGuardian
 {
@@ -47,7 +59,13 @@ public class GriefGuardian
     public void preInit(FMLPreInitializationEvent event)
     {
     	//init config
-    	config = new Config(event.getSuggestedConfigurationFile());
+    	File configSave = event.getSuggestedConfigurationFile();
+    	config = new Config(configSave);
+    	//locate save dir for claim data based on suggested config file location
+    	File claimSave = new File(configSave.getParentFile().getParentFile().getAbsolutePath() + File.separatorChar + "mods" + File.separatorChar + "ClaimData");
+    	claimSave.mkdirs();
+    	ClaimManager.instance.setSaveLocation(claimSave);
+    	
     	//create network channel
     	networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
     	//register messages
@@ -66,6 +84,7 @@ public class GriefGuardian
     	mgr.registerCommand(new DeleteClaim());
     	mgr.registerCommand(new ModifyACL());
     	mgr.registerCommand(new ShowClaims());
+    	mgr.registerCommand(new HideClaims());
     	mgr.registerCommand(new TransferClaim());
     }
 }
