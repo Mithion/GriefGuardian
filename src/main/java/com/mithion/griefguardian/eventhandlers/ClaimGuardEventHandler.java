@@ -1,8 +1,5 @@
 package com.mithion.griefguardian.eventhandlers;
 
-import com.mithion.griefguardian.claims.ClaimsList;
-import com.mithion.griefguardian.claims.PermissionsMutex;
-
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,9 +12,12 @@ import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import net.minecraftforge.event.world.BlockEvent;
+
+import com.mithion.griefguardian.claims.ClaimsList;
+import com.mithion.griefguardian.claims.PermissionsMutex;
+
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 /*
@@ -33,12 +33,18 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 public class ClaimGuardEventHandler {
 	@SubscribeEvent
 	public void onEntityInteract(EntityInteractEvent event){
+		if (event.entityPlayer.worldObj.isRemote)
+			return;
+		
 		if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.ENTITY_INTERACT, event.target.posX, event.target.posY, event.target.posZ))
 			event.setCanceled(true);
 	}
 
 	@SubscribeEvent
 	public void onEntityAttacked(AttackEntityEvent event){
+		if (event.entityPlayer.worldObj.isRemote)
+			return;
+		
 		if (event.target instanceof EntityPlayer)
 			if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.HARM_PLAYERS, event.target.posX, event.target.posY, event.target.posZ))
 				event.setCanceled(true);
@@ -54,6 +60,9 @@ public class ClaimGuardEventHandler {
 
 	@SubscribeEvent
 	public void onEntityHurt(LivingHurtEvent event){
+		if (event.entity.worldObj.isRemote)
+			return;
+		
 		EntityPlayer player = null;
 		if (event.source.getSourceOfDamage() != null && event.source.getSourceOfDamage() instanceof EntityPlayer){
 			player = (EntityPlayer)event.source.getSourceOfDamage();
@@ -76,24 +85,36 @@ public class ClaimGuardEventHandler {
 
 	@SubscribeEvent
 	public void onBonemeal(BonemealEvent event){
+		if (event.entityPlayer.worldObj.isRemote)
+			return;
+		
 		if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.USE_BONEMEAL, event.x, event.y, event.z))
 			event.setCanceled(true);
 	}
 
 	@SubscribeEvent
 	public void onItemPickupAttempt(EntityItemPickupEvent event){
+		if (event.entityPlayer.worldObj.isRemote)
+			return;
+		
 		if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.PICKUP_ITEMS, event.item.posX, event.item.posY, event.item.posZ))
 			event.setCanceled(true);
 	}
 
 	@SubscribeEvent
 	public void onBucketFillAttempt(FillBucketEvent event){
+		if (event.entityPlayer.worldObj.isRemote)
+			return;
+		
 		if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.USE_ITEMS, event.target.blockX, event.target.blockY, event.target.blockZ))
 			event.setCanceled(true);
 	}
 
 	@SubscribeEvent
 	public void onPlayerInteract(PlayerInteractEvent event){
+		if (event.entityPlayer.worldObj.isRemote)
+			return;
+		
 		switch (event.action){
 		case LEFT_CLICK_BLOCK:
 			break;
@@ -143,18 +164,27 @@ public class ClaimGuardEventHandler {
 
 	@SubscribeEvent
 	public void onPlayerAttemptXPPickup(PlayerPickupXpEvent event){
+		if (event.entityPlayer.worldObj.isRemote)
+			return;
+		
 		if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.PICKUP_XP, event.orb.posX, event.orb.posY, event.orb.posZ))
 			event.setCanceled(true);
 	}
 
 	@SubscribeEvent
 	public void onItemDrop(ItemTossEvent event){
+		if (event.entity.worldObj.isRemote)
+			return;
+		
 		if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.player, PermissionsMutex.DROP_ITEMS, event.entityItem.posX, event.entityItem.posY, event.entityItem.posZ))
 			event.setCanceled(true);
 	}
 
 	@SubscribeEvent
 	public void onPlayerTryBreakBlock(BlockEvent.BreakEvent event){
+		if (event.getPlayer().worldObj.isRemote)
+			return;
+		
 		if (!ClaimsList.For(event.getPlayer().worldObj).actionIsTrusted(event.getPlayer(), PermissionsMutex.BREAK_BLOCKS, event.x, event.y, event.z))
 			event.setCanceled(true);
 	}

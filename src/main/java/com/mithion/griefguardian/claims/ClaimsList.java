@@ -1,21 +1,20 @@
 package com.mithion.griefguardian.claims;
 
-import io.netty.buffer.ByteBuf;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.mithion.griefguardian.network.PacketSyncClaims;
-
-import cpw.mods.fml.common.network.ByteBufUtils;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
+import com.mithion.griefguardian.network.PacketSyncClaims;
+import com.mithion.griefguardian.util.PlayerDataUtils;
+
+import cpw.mods.fml.common.FMLLog;
 
 /**
  * Contains all claims for a given world.
@@ -85,8 +84,8 @@ public class ClaimsList {
 		if (claim.actionIsPermitted(Claim.EVERYONE, action))
 			return true;
 
-		//check player name
-		if (claim.actionIsPermitted(player.getCommandSenderName(), action))
+		//check player name & master ACL
+		if (PlayerDataUtils.hasMasterACL(player) || claim.actionIsPermitted(player.getCommandSenderName(), action))
 			return true;
 
 		//check player teams
@@ -259,14 +258,17 @@ public class ClaimsList {
 	}
 
 	public void writeToNBT(NBTTagCompound compound) {
-		NBTTagList claimsList = new NBTTagList();
+		NBTTagList claimsList = new NBTTagList();		
 		for (String s : claimCache.keySet()){
+			int count = 0;
 			ArrayList<Claim> claims = claimCache.get(s);
 			for (Claim claim : claims){
 				NBTTagCompound comp = new NBTTagCompound();
 				claim.writeToNBT(comp);
 				claimsList.appendTag(comp);
-			}			
+				count++;
+			}
+			FMLLog.info("GG >> Wrote %d claims for %s to disk", count, s);
 		}
 		compound.setTag("claim_data", claimsList);
 	}
@@ -281,5 +283,7 @@ public class ClaimsList {
 				claimCache.put(claim.getOwner(), new ArrayList<Claim>());
 			claimCache.get(claim.getOwner()).add(claim);
 		}
+		
+		FMLLog.info("GG >> Loaded %d claims from disk", claimsList.tagCount());
 	}
 }

@@ -2,13 +2,16 @@ package com.mithion.griefguardian.dal;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 
 import com.mithion.griefguardian.GriefGuardian;
 import com.mithion.griefguardian.config.ConfigKeys;
-import com.mithion.griefguardian.logging.GGLog;
+
+import cpw.mods.fml.common.FMLLog;
 
 /*
  * MySQL Data Access Layer class
@@ -21,7 +24,8 @@ import com.mithion.griefguardian.logging.GGLog;
 public class MySQLHandler {
 	private Connection _connection;
 	private Statement _statement;
-	private ResultSet _rs;
+	private PreparedStatement _prepStatement;
+	private ResultSet _rs;	
 
 	/**
 	 * Opens the connection to the database
@@ -39,11 +43,11 @@ public class MySQLHandler {
 			_connection = DriverManager.getConnection(url, user, password);
 			return true;
 		}catch (SQLException ex) {
-			GGLog.logError(ex);
+			ex.printStackTrace();
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Cleans up all connections, result sets, and statements
 	 */
@@ -60,7 +64,7 @@ public class MySQLHandler {
 			}
 
 		} catch (SQLException ex) {
-			GGLog.logError(ex);
+			ex.printStackTrace();
 		}
 	}
 
@@ -78,7 +82,7 @@ public class MySQLHandler {
 			}
 			//TODO:  Do something with the results
 		}catch (SQLException ex) {
-			GGLog.logError(ex);
+			ex.printStackTrace();
 		} finally {
 			cleanup();
 		}
@@ -90,5 +94,48 @@ public class MySQLHandler {
 	 */
 	private String scrub(String syntax){  
 		return syntax.replaceAll("([^A-Za-z0-9.,'\"% _-]+)", "");  
+	}
+
+	/**
+	 * Gets all registered loggable actions in the database and creates a local construct for them
+	 */
+	public HashMap<Integer, LoggableAction> getLoggableActions(){
+		HashMap<Integer, LoggableAction> actions = new HashMap<Integer, LoggableAction>();
+		try{
+			if (openConnection()){
+				_prepStatement = _connection.prepareStatement("SELECT * FROM actiontypes");
+				_rs = _prepStatement.executeQuery();
+
+				while (_rs.next()){
+					LoggableAction action = new LoggableAction(_rs.getInt("id"), _rs.getString("desc"));
+					actions.put(action.getID(), action);
+				}
+			}
+		}catch(SQLException ex){
+			ex.printStackTrace();
+		}finally{
+			cleanup();
+		}
+		return actions;
+	}
+
+	/**
+	 * Checks the database, auto-creates if it doesn't already exist
+	 */
+	public void checkDatabase(){
+		FMLLog.info("GG >> Checking DAL");
+		try{
+			Class.forName("com.mysql.jdbc.Driver");
+		}catch(Throwable t){
+			FMLLog.warning("GG >> You don't have the MySQL JDBC driver installed...you're going to need that!  DAL check failed!");
+			return;
+		}
+		if (!openConnection()){
+			FMLLog.warning("GG >> DAL couldn't connect to MySQL!");
+			return;
+		}else{
+			cleanup();
+		}
+		FMLLog.info("GG >> DAL is OK");
 	}
 }
