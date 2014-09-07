@@ -8,16 +8,13 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 public class WorldEventHandler {
 	@SubscribeEvent
 	public void onWorldSave(WorldEvent.Save event){
-		ClaimManager.instance.saveAllClaims(event.world);
+		if (!event.world.isRemote)
+			ClaimManager.instance.saveAllClaims(event.world);
 	}
 	
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load event){
-		ClaimManager.instance.loadAllClaims(event.world);
-	}
-	
-	@SubscribeEvent
-	public void onWorldUnload(WorldEvent.Unload event){
-		ClaimManager.instance.unloadClaimsForWorld(event.world);
+		if (!event.world.isRemote)
+			ClaimManager.instance.loadAllClaims(event.world);
 	}
 }

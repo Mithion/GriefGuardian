@@ -5,6 +5,7 @@ import java.io.File;
 import com.mithion.griefguardian.claims.ClaimManager;
 import com.mithion.griefguardian.commands.ClaimCommand;
 import com.mithion.griefguardian.commands.DeleteClaim;
+import com.mithion.griefguardian.commands.Execute;
 import com.mithion.griefguardian.commands.HideClaims;
 import com.mithion.griefguardian.commands.ModifyACL;
 import com.mithion.griefguardian.commands.ShowClaims;
@@ -86,5 +87,6 @@ public class GriefGuardian
     	mgr.registerCommand(new ShowClaims());
     	mgr.registerCommand(new HideClaims());
     	mgr.registerCommand(new TransferClaim());
+    	mgr.registerCommand(new Execute());
     }
 }

@@ -159,5 +159,5 @@ public class ClaimGuardEventHandler {
 			event.setCanceled(true);
 	}
 	
-	//TODO:  Fire spread, liquid movement, entity stacking
+	//TODO:  Fire spread, liquid movement, entity stacking, mob griefing
 }

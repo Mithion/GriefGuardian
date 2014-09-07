@@ -46,6 +46,7 @@ public class ClaimManager {
 	}
 
 	public void saveAllClaims(World world){
+		FMLLog.fine("GG >> Saving Claim Data for dimension %d", world.provider.dimensionId);
 		ClaimsList list = getClaimsList(world);
 		File worldFile = new File (saveLocation.getAbsolutePath() + File.separatorChar + "DIM" + world.provider.dimensionId + ".dat");
 		NBTTagCompound compound = new NBTTagCompound();
@@ -59,6 +60,7 @@ public class ClaimManager {
 	}
 
 	public void loadAllClaims(World world){
+		FMLLog.fine("GG >> Loading Claim Data for dimension %d", world.provider.dimensionId);
 		ClaimsList list = getClaimsList(world);
 		File worldFile = new File (saveLocation.getAbsolutePath() + File.separatorChar + "DIM" + world.provider.dimensionId + ".dat");
 		if (worldFile.exists()){

@@ -6,6 +6,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mithion.griefguardian.claims.ClaimManager;
 import com.mithion.griefguardian.claims.ClaimsList;
 import com.mithion.griefguardian.claims.ClaimsList.ActionResults;
 import com.mithion.griefguardian.claims.PermissionsMutex;
@@ -15,6 +16,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChunkCoordinates;
 
@@ -47,11 +49,15 @@ public class ModifyACL extends CommandBase{
 		}else{
 			ChunkCoordinates coords = commandSender.getPlayerCoordinates();
 			int mask = buildFlagsFromArgs(stripArray(args, 2));
-			if (args[0].toUpperCase().trim().equals("ADD")){
-				ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).addClaimPermissions(commandSender, args[1].trim(), mask, coords.posX, coords.posY, coords.posZ);
+			
+			Team team = getCommandSenderAsPlayer(commandSender).getWorldScoreboard().getTeam(args[1].trim());
+			String identifier = team == null ? args[1].trim() : ClaimManager.instance.createTeamIdentifier(team);
+			
+			if (args[0].toUpperCase().trim().equals("ADD")){				
+				ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).addClaimPermissions(commandSender, identifier, mask, coords.posX, coords.posY, coords.posZ);
 				commandSender.addChatMessage(new ChatComponentText(res.message));
 			}else if (args[0].toUpperCase().trim().equals("REMOVE")){
-				ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).removeClaimPermissions(commandSender, args[1].trim(), mask, coords.posX, coords.posY, coords.posZ);
+				ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).removeClaimPermissions(commandSender, identifier, mask, coords.posX, coords.posY, coords.posZ);
 				commandSender.addChatMessage(new ChatComponentText(res.message));
 			}else{
 				throw new WrongUsageException(getCommandUsage(commandSender), new Object[0]);
