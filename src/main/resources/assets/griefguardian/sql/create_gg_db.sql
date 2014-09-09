@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users(
     ipaddr VARCHAR(50) NOT NULL,
     `status` INT DEFAULT 1,
 	note TEXT,
-	bantime DATETIME,
+	bantime BIGINT,
     PRIMARY KEY (id),
 	FOREIGN KEY (`status`)
 		REFERENCES userstatus(id)
@@ -43,8 +43,7 @@ CREATE TABLE IF NOT EXISTS actions(
 	xCoord INT NOT NULL, #where pt 2
     yCoord INT NOT NULL,
     zCoord INT NOT NULL,
-    itemID INT,
-    blockID INT,
+    unlocalizedName VARCHAR(50),
     metadata INT,
     `desc` VARCHAR(250),
     PRIMARY KEY (id),
@@ -63,6 +62,8 @@ CREATE TABLE IF NOT EXISTS actions(
 INSERT INTO userstatus (description) VALUES ("Active");
 INSERT INTO userstatus (description) VALUES ("TempBanned");
 INSERT INTO userstatus (description) VALUES ("PermaBanned");
+INSERT INTO userstatus (description) VALUES ("TempBannedIP");
+INSERT INTO userstatus (description) VALUES ("PermaBannedIP");
 
 #action type defaults
 #fallback
@@ -119,18 +120,15 @@ INSERT INTO actiontypes (`desc`)
 #fire spread
 INSERT INTO actiontypes (`desc`) 
 	VALUES ('Fire Spread');
-#mob death
-INSERT INTO actiontypes (`desc`) 
-	VALUES ('Mob Death');
 #player death
 INSERT INTO actiontypes (`desc`) 
 	VALUES ('Player Death');
-#other death
-INSERT INTO actiontypes (`desc`) 
-	VALUES ('Other Death');
 #mob kill
 INSERT INTO actiontypes (`desc`) 
 	VALUES ('Mob Kill');
 #player kill
 INSERT INTO actiontypes (`desc`) 
 	VALUES ('Player Kill');
+#entity interact
+INSERT INTO actiontypes (`desc`) 
+	VALUES ('Entity Interact');

@@ -6,4 +6,6 @@ public class ConfigKeys {
 	public static final String mysql_db_pass = "mysql_db_pass";
 	public static final String mysql_db_port = "mysql_db_port";
 	public static final String mysql_db_user = "mysql_db_user";
+	
+	public static final String spamguard_time = "spamguard_time";
 }

@@ -13,11 +13,14 @@ import com.mithion.griefguardian.commands.DeleteClaim;
 import com.mithion.griefguardian.commands.Execute;
 import com.mithion.griefguardian.commands.HideClaims;
 import com.mithion.griefguardian.commands.ModifyACL;
+import com.mithion.griefguardian.commands.PermaBan;
 import com.mithion.griefguardian.commands.ShowClaims;
+import com.mithion.griefguardian.commands.TempBan;
 import com.mithion.griefguardian.commands.TransferClaim;
+import com.mithion.griefguardian.commands.UnBan;
 import com.mithion.griefguardian.config.Config;
+import com.mithion.griefguardian.dal.DALAccess;
 import com.mithion.griefguardian.dal.LoggableActionManager;
-import com.mithion.griefguardian.dal.MySQLHandler;
 import com.mithion.griefguardian.network.PacketSyncClaims;
 import com.mithion.griefguardian.network.PacketSyncMessageHandler;
 import com.mithion.griefguardian.proxy.CommonProxy;
@@ -53,7 +56,7 @@ public class GriefGuardian
     
     public static Config config;
     public static SimpleNetworkWrapper networkWrapper;
-    public static MySQLHandler _dal;
+    public static DALAccess _dal;
     
     @Instance
     public static GriefGuardian instance;
@@ -70,7 +73,7 @@ public class GriefGuardian
     	ClaimManager.instance.setSaveLocation(claimSave);
     
     	//init mysql
-    	_dal = new MySQLHandler();
+    	_dal = new DALAccess();
     	_dal.checkDatabase();
     	LoggableActionManager.instance.init();
     	
@@ -97,5 +100,9 @@ public class GriefGuardian
     	mgr.registerCommand(new Execute());
     	mgr.registerCommand(new AdminInvisibility());
     	mgr.registerCommand(new AdminMode());
+    	
+    	mgr.registerCommand(new TempBan());
+    	mgr.registerCommand(new PermaBan());
+    	mgr.registerCommand(new UnBan());
     }
 }

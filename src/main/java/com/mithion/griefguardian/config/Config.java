@@ -1,19 +1,17 @@
 package com.mithion.griefguardian.config;
 
 import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 
-import com.google.common.reflect.TypeResolver;
-import com.mithion.griefguardian.util.Convert;
-
 import net.minecraftforge.common.config.Configuration;
+
+import com.mithion.griefguardian.util.Convert;
 
 public class Config extends Configuration{
 	
 	private HashMap<String, ConfigEntry> configEntries;	
 	private static final String CATEGORY_MYSQL = "MYSQL";
+	private static final String CATEGORY_CHAT = "CHAT";
 	
 	public Config(File file){
 		super(file);
@@ -26,6 +24,7 @@ public class Config extends Configuration{
 		this.addEntry(ConfigKeys.mysql_db_name, CATEGORY_MYSQL, "minecraft", String.class);
 		this.addEntry(ConfigKeys.mysql_db_user, CATEGORY_MYSQL, "mcsvc", String.class);
 		this.addEntry(ConfigKeys.mysql_db_pass, CATEGORY_MYSQL, "admin", String.class);
+		this.addEntry(ConfigKeys.spamguard_time, CATEGORY_CHAT, 1000, Integer.class);
 		
 		save();
 	}

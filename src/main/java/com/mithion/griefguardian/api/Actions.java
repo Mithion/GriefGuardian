@@ -1,6 +1,11 @@
 package com.mithion.griefguardian.api;
 
-public class LoggableActionIDs {
+/**
+ * These actions are the default ones that GriefGuardian tracks.  Additional loggable events can be registered via the API.
+ * @author Mithion
+ *
+ */
+public class Actions {
 	public static final int OTHER = 1;
 	public static final int BLOCK_BREAK = 2;
 	public static final int BLOCK_PLACE = 3;
@@ -19,9 +24,8 @@ public class LoggableActionIDs {
 	public static final int ENDERMAN_PLACE = 16;
 	public static final int EXPLOSION = 17;
 	public static final int FIRE_SPREAD = 18;
-	public static final int MOB_DEATH = 19;
-	public static final int PLAYER_DEATH = 20;
-	public static final int OTHER_DEATH = 21;
-	public static final int MOB_KILL = 22;
-	public static final int PLAYER_KILL = 23;
+	public static final int PLAYER_DEATH = 19;
+	public static final int MOB_KILL = 20;
+	public static final int PLAYER_KILL = 21;
+	public static final int ENTITY_INTERACT = 22;
 }
