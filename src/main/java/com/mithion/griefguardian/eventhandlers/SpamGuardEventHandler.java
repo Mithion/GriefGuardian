@@ -35,7 +35,8 @@ public class SpamGuardEventHandler {
 		long curTime = MinecraftServer.getSystemTimeMillis();
 		if (chatSpamCooldown.containsKey(event.player.getCommandSenderName())){
 			if (curTime - chatSpamCooldown.get(event.player.getCommandSenderName()) < GriefGuardian.config.getInt(ConfigKeys.spamguard_time)){
-				event.player.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + "Your message was too soon after the previous one and was not sent."));
+				if (!GriefGuardian.config.getBoolean(ConfigKeys.spamguard_silent))
+					event.player.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + "Your message was too soon after the previous one and was not sent."));
 				event.setCanceled(true);
 			}			
 		}

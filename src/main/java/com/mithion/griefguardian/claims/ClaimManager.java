@@ -3,12 +3,15 @@ package com.mithion.griefguardian.claims;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import cpw.mods.fml.common.FMLLog;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import cpw.mods.fml.common.FMLLog;
 
 /**
  * Contains all claim lists across loaded dimensions.
@@ -45,10 +48,10 @@ public class ClaimManager {
 		return String.format("t:%s", team.getRegisteredName());
 	}
 
-	public void saveAllClaims(World world){
+	public void saveAllClaims(WorldServer world){
 		FMLLog.fine("GG >> Saving Claim Data for dimension %d", world.provider.dimensionId);
 		ClaimsList list = getClaimsList(world);
-		File worldFile = new File (saveLocation.getAbsolutePath() + File.separatorChar + "DIM" + world.provider.dimensionId + ".dat");
+		File worldFile = claimSaveFor(world);
 		NBTTagCompound compound = new NBTTagCompound();
 		list.writeToNBT(compound);
 		try {
@@ -59,10 +62,10 @@ public class ClaimManager {
 		}
 	}
 
-	public void loadAllClaims(World world){
+	public void loadAllClaims(WorldServer world){
 		FMLLog.fine("GG >> Loading Claim Data for dimension %d", world.provider.dimensionId);
 		ClaimsList list = getClaimsList(world);
-		File worldFile = new File (saveLocation.getAbsolutePath() + File.separatorChar + "DIM" + world.provider.dimensionId + ".dat");
+		File worldFile = claimSaveFor(world);
 		if (worldFile.exists()){
 			try{
 				NBTTagCompound compound = CompressedStreamTools.read(worldFile);
@@ -74,9 +77,13 @@ public class ClaimManager {
 		}
 	}
 
-	public void unloadClaimsForWorld(World world) {
-		saveAllClaims(world);
-		dimensionCache.remove(world.provider.dimensionId);
+	public File claimSaveFor(WorldServer world) {
+		String dirName = world.getSaveHandler().getWorldDirectoryName().replace(" ", "");
+		Pattern p = Pattern.compile("[\\W]");
+		Matcher m = p.matcher(dirName);
+		dirName = m.replaceAll(dirName);
+		File worldFile = new File (saveLocation.getAbsolutePath() + File.separatorChar + dirName + "DIM" + world.provider.dimensionId + ".dat");
+		return worldFile;
 	}
 
 }

@@ -5,6 +5,7 @@ import java.util.Date;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
@@ -18,14 +19,18 @@ import cpw.mods.fml.common.gameevent.PlayerEvent;
 public class WorldEventHandler {
 	@SubscribeEvent
 	public void onWorldSave(WorldEvent.Save event){
-		if (!event.world.isRemote)
-			ClaimManager.instance.saveAllClaims(event.world);
+		if (!event.world.isRemote){
+			ClaimManager.instance.saveAllClaims((WorldServer)event.world);
+			if (event.world.provider.dimensionId == 0)
+				PlayerDataUtils.saveAllGlobalWarpPoints();
+		}
 	}
 	
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load event){
-		if (!event.world.isRemote)
-			ClaimManager.instance.loadAllClaims(event.world);
+		if (!event.world.isRemote){
+			ClaimManager.instance.loadAllClaims((WorldServer)event.world);
+		}
 	}
 	
 	@SubscribeEvent

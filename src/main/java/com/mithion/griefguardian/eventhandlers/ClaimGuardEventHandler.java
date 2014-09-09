@@ -286,7 +286,7 @@ public class ClaimGuardEventHandler {
 					(int)Math.floor(event.x), 
 					(int)Math.floor(event.y), 
 					(int)Math.floor(event.z), 
-					event.getPlayer().getCurrentEquippedItem(), 
+					new ItemStack(event.block, 1, event.blockMetadata), 
 					"");
 	}
 

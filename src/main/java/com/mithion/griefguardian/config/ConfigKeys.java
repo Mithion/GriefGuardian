@@ -8,4 +8,5 @@ public class ConfigKeys {
 	public static final String mysql_db_user = "mysql_db_user";
 	
 	public static final String spamguard_time = "spamguard_time";
+	public static final String spamguard_silent = "spamguard_silent";
 }

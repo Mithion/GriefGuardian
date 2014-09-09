@@ -4,6 +4,7 @@ import java.io.File;
 
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.WorldServer;
 
 import com.mithion.griefguardian.claims.ClaimManager;
 import com.mithion.griefguardian.commands.AdminInvisibility;
@@ -13,17 +14,20 @@ import com.mithion.griefguardian.commands.DeleteClaim;
 import com.mithion.griefguardian.commands.Execute;
 import com.mithion.griefguardian.commands.HideClaims;
 import com.mithion.griefguardian.commands.ModifyACL;
+import com.mithion.griefguardian.commands.OpenInventory;
 import com.mithion.griefguardian.commands.PermaBan;
 import com.mithion.griefguardian.commands.ShowClaims;
 import com.mithion.griefguardian.commands.TempBan;
 import com.mithion.griefguardian.commands.TransferClaim;
 import com.mithion.griefguardian.commands.UnBan;
+import com.mithion.griefguardian.commands.Warp;
 import com.mithion.griefguardian.config.Config;
 import com.mithion.griefguardian.dal.DALAccess;
 import com.mithion.griefguardian.dal.LoggableActionManager;
 import com.mithion.griefguardian.network.PacketSyncClaims;
 import com.mithion.griefguardian.network.PacketSyncMessageHandler;
 import com.mithion.griefguardian.proxy.CommonProxy;
+import com.mithion.griefguardian.util.PlayerDataUtils;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -32,6 +36,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
@@ -68,9 +73,10 @@ public class GriefGuardian
     	File configSave = event.getSuggestedConfigurationFile();
     	config = new Config(configSave);
     	//locate save dir for claim data based on suggested config file location
-    	File claimSave = new File(configSave.getParentFile().getParentFile().getAbsolutePath() + File.separatorChar + "mods" + File.separatorChar + "ClaimData");
+    	File claimSave = new File(configSave.getParentFile().getParentFile().getAbsolutePath() + File.separatorChar + "ClaimData");
     	claimSave.mkdirs();
     	ClaimManager.instance.setSaveLocation(claimSave);
+    	PlayerDataUtils.setInstanceDir(new File(configSave.getParentFile().getParentFile().getAbsolutePath()));
     
     	//init mysql
     	_dal = new DALAccess();
@@ -104,5 +110,17 @@ public class GriefGuardian
     	mgr.registerCommand(new TempBan());
     	mgr.registerCommand(new PermaBan());
     	mgr.registerCommand(new UnBan());
+    	
+    	mgr.registerCommand(new OpenInventory());
+    	mgr.registerCommand(new Warp());
+    }
+    
+    @EventHandler
+    public void onServerStopping(FMLServerStoppingEvent event){
+    	_dal.stopAllThreads();
+    	
+    	for (WorldServer ws : MinecraftServer.getServer().worldServers){
+    		ClaimManager.instance.saveAllClaims(ws);
+    	}
     }
 }

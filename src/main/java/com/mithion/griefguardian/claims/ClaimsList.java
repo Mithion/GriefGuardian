@@ -25,10 +25,12 @@ import cpw.mods.fml.common.FMLLog;
  * 
  */
 public class ClaimsList {
-	private HashMap<String, ArrayList<Claim>> claimCache;	
+	private HashMap<String, ArrayList<Claim>> claimCache;
+	private final HashMap<String, ArrayList<Claim>> clientClaimCache;
 
 	public ClaimsList(){
 		claimCache = new HashMap<String, ArrayList<Claim>>();
+		clientClaimCache = new HashMap<String, ArrayList<Claim>>();
 	}
 
 	public enum ActionResults{
@@ -187,11 +189,11 @@ public class ClaimsList {
 	public void loadFromSyncPacket(PacketSyncClaims pkt){
 		HashMap<String, ArrayList<Claim>> data = pkt.getData();
 		if (!pkt.updateClaims())
-			claimCache.clear();
+			clientClaimCache.clear();
 		for (String s : data.keySet()){
-			if (!claimCache.containsKey(s))
-				claimCache.put(s, new ArrayList<Claim>());
-			claimCache.put(s, (ArrayList<Claim>) data.get(s).clone());
+			if (!clientClaimCache.containsKey(s))
+				clientClaimCache.put(s, new ArrayList<Claim>());
+			clientClaimCache.put(s, (ArrayList<Claim>) data.get(s).clone());
 		}
 	}
 
@@ -240,12 +242,15 @@ public class ClaimsList {
 	 * @param any If true, claims where the player has any of the specified permissions will be included.  If false, the player has to have all specified permissions in a claim for it to be included.
 	 */
 	public ArrayList<Claim> getClaimsForPlayer(EntityPlayer player, int permissionTests, boolean any){
+		
+		HashMap<String, ArrayList<Claim>> setToUse = player.worldObj.isRemote ? clientClaimCache : claimCache;
+		
 		ArrayList<Claim> claims = new ArrayList<Claim>();
-		for (String s : claimCache.keySet()){
+		for (String s : setToUse.keySet()){
 			if (s.equals(player.getCommandSenderName())){
-				claims.addAll(claimCache.get(s));
+				claims.addAll(setToUse.get(s));
 			}else{
-				for (Claim claim : claimCache.get(s)){
+				for (Claim claim : setToUse.get(s)){
 					if ( (any && PermissionsMutex.checkAnyFlags(claim.getPermissionMask(player.getCommandSenderName()), permissionTests)) ||
 							(!any && PermissionsMutex.checkAllFlags(claim.getPermissionMask(player.getCommandSenderName()), permissionTests))){
 						claims.add(claim);
