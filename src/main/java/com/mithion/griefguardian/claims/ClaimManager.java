@@ -11,7 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import cpw.mods.fml.common.FMLLog;
+import net.minecraftforge.fml.common.FMLLog;
 
 /**
  * Contains all claim lists across loaded dimensions.
@@ -38,10 +38,10 @@ public class ClaimManager {
 	}
 
 	public ClaimsList getClaimsList(World world){
-		if (!dimensionCache.containsKey(world.provider.dimensionId)){
-			dimensionCache.put(world.provider.dimensionId, new ClaimsList());
+		if (!dimensionCache.containsKey(world.provider.getDimensionId())){
+			dimensionCache.put(world.provider.getDimensionId(), new ClaimsList());
 		}
-		return dimensionCache.get(world.provider.dimensionId);		
+		return dimensionCache.get(world.provider.getDimensionId());		
 	}
 
 	public String createTeamIdentifier(Team team){
@@ -49,7 +49,7 @@ public class ClaimManager {
 	}
 
 	public void saveAllClaims(WorldServer world){
-		FMLLog.fine("GG >> Saving Claim Data for dimension %d", world.provider.dimensionId);
+		FMLLog.fine("GG >> Saving Claim Data for dimension %d", world.provider.getDimensionId());
 		ClaimsList list = getClaimsList(world);
 		File worldFile = claimSaveFor(world);
 		NBTTagCompound compound = new NBTTagCompound();
@@ -63,7 +63,7 @@ public class ClaimManager {
 	}
 
 	public void loadAllClaims(WorldServer world){
-		FMLLog.fine("GG >> Loading Claim Data for dimension %d", world.provider.dimensionId);
+		FMLLog.fine("GG >> Loading Claim Data for dimension %d", world.provider.getDimensionId());
 		ClaimsList list = getClaimsList(world);
 		File worldFile = claimSaveFor(world);
 		if (worldFile.exists()){
@@ -82,7 +82,7 @@ public class ClaimManager {
 		Pattern p = Pattern.compile("[\\W]");
 		Matcher m = p.matcher(dirName);
 		dirName = m.replaceAll(dirName);
-		File worldFile = new File (saveLocation.getAbsolutePath() + File.separatorChar + dirName + "DIM" + world.provider.dimensionId + ".dat");
+		File worldFile = new File (saveLocation.getAbsolutePath() + File.separatorChar + dirName + "DIM" + world.provider.getDimensionId() + ".dat");
 		return worldFile;
 	}
 

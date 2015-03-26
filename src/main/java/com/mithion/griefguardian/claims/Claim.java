@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
-import cpw.mods.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 /**
  * Contains all data fpr one given claim.
@@ -88,7 +88,7 @@ public class Claim{
 	 * Checks if the specified xyz coordinate falls inside this claim
 	 */
 	public boolean testBounds(int x, int y, int z){
-		Vec3 vec = Vec3.createVectorHelper(x, y, z);
+		Vec3 vec = new Vec3(x, y, z);
 		boolean inside = claimBounds.isVecInside(vec);
 		return inside;
 	}
@@ -140,7 +140,7 @@ public class Claim{
 	 */
 	public void readFromByteBuf(ByteBuf buf){
 		claimOwner = ByteBufUtils.readUTF8String(buf);
-		claimBounds = AxisAlignedBB.getBoundingBox(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(),buf.readDouble(), buf.readDouble());
+		claimBounds = AxisAlignedBB.fromBounds(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(),buf.readDouble(), buf.readDouble());
 		int numPermRecords = buf.readInt();
 		for (int i = 0; i < numPermRecords; ++i){
 			String s = ByteBufUtils.readUTF8String(buf);
@@ -160,7 +160,7 @@ public class Claim{
 	}
 
 	public AxisAlignedBB getBounds() {
-		return claimBounds.copy();
+		return claimBounds;
 	}
 
 	public void setClaimOwner(String newOwner) {
@@ -190,7 +190,7 @@ public class Claim{
 	
 	public void readFromNBT(NBTTagCompound comp){
 		claimOwner = comp.getString("claim_owner");
-		claimBounds = AxisAlignedBB.getBoundingBox(
+		claimBounds = AxisAlignedBB.fromBounds(
 				comp.getDouble("bounds_min_x"), 
 				comp.getDouble("bounds_min_y"), 
 				comp.getDouble("bounds_min_z"), 

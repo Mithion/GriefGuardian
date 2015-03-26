@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import cpw.mods.fml.common.FMLLog;
+import net.minecraftforge.fml.common.FMLLog;
 
 public class DALAccess {
 	
@@ -89,10 +89,10 @@ public class DALAccess {
 		if (!mysql_loaded)
 			return;
 		
-		logThread.addLogEntryToQueue(player.getCommandSenderName(), 
+		logThread.addLogEntryToQueue(player.getCommandSenderEntity().getName(), 
 				player.getPlayerIP(), 
 				actionID, 
-				player.worldObj.provider.dimensionId, 
+				player.worldObj.provider.getDimensionId(), 
 				player.worldObj.provider.getDimensionName(), 
 				x, 
 				y, 
@@ -114,7 +114,7 @@ public class DALAccess {
 			if (handler.openConnection()){
 				PreparedStatement statement = handler.prepareStatement("SELECT bantime FROM users WHERE username = ? OR ipaddr = ?");
 
-				statement.setString(1, player.getCommandSenderName());
+				statement.setString(1, player.getCommandSenderEntity().getName());
 				statement.setString(2, player.getPlayerIP());
 
 				handler._rs = statement.executeQuery();

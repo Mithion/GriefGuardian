@@ -5,15 +5,15 @@ import net.minecraft.util.Vec3;
 
 public class AABBUtils {
 	public static boolean AABBIsWithinRange(AxisAlignedBB bb, Vec3 point, int distance){
-		Vec3 a = Vec3.createVectorHelper(bb.minX, bb.minY, bb.minZ);
-		Vec3 b = Vec3.createVectorHelper(bb.maxX, bb.minY, bb.minZ);
-		Vec3 c = Vec3.createVectorHelper(bb.maxX, bb.minY, bb.maxZ);
-		Vec3 d = Vec3.createVectorHelper(bb.minX, bb.minY, bb.maxZ);
+		Vec3 a = new Vec3(bb.minX, bb.minY, bb.minZ);
+		Vec3 b = new Vec3(bb.maxX, bb.minY, bb.minZ);
+		Vec3 c = new Vec3(bb.maxX, bb.minY, bb.maxZ);
+		Vec3 d = new Vec3(bb.minX, bb.minY, bb.maxZ);
 		
-		Vec3 e = Vec3.createVectorHelper(bb.minX, bb.maxY, bb.minZ);
-		Vec3 f = Vec3.createVectorHelper(bb.maxX, bb.maxY, bb.minZ);
-		Vec3 g = Vec3.createVectorHelper(bb.maxX, bb.maxY, bb.maxZ);
-		Vec3 h = Vec3.createVectorHelper(bb.minX, bb.maxY, bb.maxZ);
+		Vec3 e = new Vec3(bb.minX, bb.maxY, bb.minZ);
+		Vec3 f = new Vec3(bb.maxX, bb.maxY, bb.minZ);
+		Vec3 g = new Vec3(bb.maxX, bb.maxY, bb.maxZ);
+		Vec3 h = new Vec3(bb.minX, bb.maxY, bb.maxZ);
 		
 		if (a.distanceTo(point) < distance)
 			return true;

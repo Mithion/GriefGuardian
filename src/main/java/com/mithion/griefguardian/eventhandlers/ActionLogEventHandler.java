@@ -1,17 +1,17 @@
 package com.mithion.griefguardian.eventhandlers;
 
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 import com.mithion.griefguardian.GriefGuardian;
 import com.mithion.griefguardian.api.Actions;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
 
 /**
  * This class is for logging events that don't belong in the {@link ClaimGuardEventHandler}.
@@ -47,7 +47,7 @@ public class ActionLogEventHandler {
 						(int)Math.floor(event.entity.posY), 
 						(int)Math.floor(event.entity.posZ), 
 						source.getCurrentEquippedItem(), 
-						event.source.func_151519_b(death).getUnformattedText());
+						event.source.getDeathMessage(death).getUnformattedText());
 			}else{ //if the player was killed by something else
 				GriefGuardian._dal.logAction(
 						(EntityPlayerMP)death, 
@@ -56,7 +56,7 @@ public class ActionLogEventHandler {
 						(int)Math.floor(event.entity.posY), 
 						(int)Math.floor(event.entity.posZ), 
 						null, 
-						event.source.func_151519_b(death).getUnformattedText());
+						event.source.getDeathMessage(death).getUnformattedText());
 			}
 		}else{ //target is a mob
 			GriefGuardian._dal.logAction(
@@ -84,7 +84,13 @@ public class ActionLogEventHandler {
 	
 	@SubscribeEvent
 	public void onServerCommand(CommandEvent event){
-		EntityPlayerMP player = CommandBase.getCommandSenderAsPlayer(event.sender);
+		EntityPlayerMP player;
+		try {
+			player = CommandBase.getCommandSenderAsPlayer(event.sender);
+		} catch (PlayerNotFoundException e) {
+			e.printStackTrace();
+			return;
+		}
 		String cmd = event.command.getCommandName();
 		for (String s : event.parameters)
 			cmd += " " + s;

@@ -27,7 +27,7 @@ public class TempBan extends CommandBase{
 	}
 
 	@Override
-	public void processCommand(ICommandSender commandSender, String[] args){
+	public void processCommand(ICommandSender commandSender, String[] args) throws WrongUsageException{
 		if (args.length != 2 && args.length != 3 && args.length != 4){
 			throw new WrongUsageException(getCommandUsage(commandSender));
 		}
@@ -40,28 +40,28 @@ public class TempBan extends CommandBase{
 			Pattern pattern = Pattern.compile("[0-9]+");
 			Matcher matcher = pattern.matcher(args[1]);
 			matcher.find();
-			days = parseInt(commandSender, matcher.group());
+			days = parseInt(matcher.group());
 			matcher.find();
-			hours = parseInt(commandSender, matcher.group());
+			hours = parseInt(matcher.group());
 			matcher.find();
-			minutes = parseInt(commandSender, matcher.group());
+			minutes = parseInt(matcher.group());
 		}catch (Throwable t){
 			throw new WrongUsageException("Arg 2 must be in the format '_d_h_m', where each underscore is replaced by a number.  It represents days, hours, and minutes.");
 		}
 		try{
 			if (args.length >= 3)
-				ipBan = parseBoolean(commandSender, args[2]);
+				ipBan = parseBoolean(args[2]);
 		}catch (Throwable t){
 			throw new WrongUsageException("Arg 3 must be a boolean (true or false)!");
 		}
 		try{
 			if (args.length == 4)
-				noMatch = parseBoolean(commandSender, args[3]);
+				noMatch = parseBoolean(args[3]);
 		}catch (Throwable t){
 			throw new WrongUsageException("Arg 4 must be a boolean (true or false)!");
 		}
 		
-		long time = MinecraftServer.getSystemTimeMillis();
+		long time = MinecraftServer.getCurrentTimeMillis();
 		
 		EntityPlayerMP player = null;
 		try{
@@ -88,7 +88,7 @@ public class TempBan extends CommandBase{
 				identString = player.getPlayerIP();
 			}
 			GriefGuardian._dal.tempBanIP(identString, unbanTime);
-			List<EntityPlayerMP> list = MinecraftServer.getServer().getConfigurationManager().getPlayerList(identString);
+			List<EntityPlayerMP> list = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
 			for (EntityPlayerMP p : list){
 				p.playerNetServerHandler.kickPlayerFromServer(String.format("You have been given a temp ban.  The ban will be lifted at %s.", new Date(unbanTime).toGMTString()));
 			}
@@ -102,7 +102,7 @@ public class TempBan extends CommandBase{
 			}
 		}		
 		
-		func_152373_a(commandSender, this, "%s has been given a temp ban.", identString);
+		//TODO: zet in chat %s has been given a temp ban.
 	}
 	
 }

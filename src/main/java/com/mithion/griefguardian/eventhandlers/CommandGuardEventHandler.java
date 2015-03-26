@@ -1,7 +1,7 @@
 package com.mithion.griefguardian.eventhandlers;
 
 import net.minecraftforge.event.CommandEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /*
  * Contains all the 'entry point' event handlers for Forge events.

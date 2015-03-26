@@ -13,10 +13,10 @@ public class ContainerRemoteInventory extends ContainerChest {
 	private final String userName;
 	private final OfflineInventory remoteInventory;
 	
-	public ContainerRemoteInventory(IInventory p_i1806_1_, OfflineInventory p_i1806_2_, String userName) {
-		super(p_i1806_1_, p_i1806_2_);
+	public ContainerRemoteInventory(IInventory p_i1806_1_, OfflineInventory p_i1806_2_, EntityPlayer player) {
+		super(p_i1806_1_, p_i1806_2_, player);
 		
-		this.userName = userName;
+		this.userName = player.getName();
 		this.remoteInventory = p_i1806_2_;
 	}
 	

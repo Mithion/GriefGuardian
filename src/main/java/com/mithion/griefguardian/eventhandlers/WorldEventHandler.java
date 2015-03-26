@@ -8,20 +8,19 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 import com.mithion.griefguardian.GriefGuardian;
 import com.mithion.griefguardian.claims.ClaimManager;
 import com.mithion.griefguardian.util.PlayerDataUtils;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
 
 public class WorldEventHandler {
 	@SubscribeEvent
 	public void onWorldSave(WorldEvent.Save event){
 		if (!event.world.isRemote){
 			ClaimManager.instance.saveAllClaims((WorldServer)event.world);
-			if (event.world.provider.dimensionId == 0)
+			if (event.world.provider.getDimensionId() == 0)
 				PlayerDataUtils.saveAllGlobalWarpPoints();
 		}
 	}
@@ -44,7 +43,7 @@ public class WorldEventHandler {
 	public void onEntityConnect(PlayerEvent.PlayerLoggedInEvent event){
 		if (!(event.player instanceof EntityPlayerMP))
 			return;
-		long time = MinecraftServer.getSystemTimeMillis();
+		long time = MinecraftServer.getCurrentTimeMillis();
 		EntityPlayerMP player = (EntityPlayerMP)event.player;
 		long unbanTime = GriefGuardian._dal.getUnbanTime(player);
 		if (unbanTime > time){

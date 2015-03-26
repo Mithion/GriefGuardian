@@ -245,7 +245,7 @@ public class DALWorkerThread implements Runnable {
 			if (handler.openConnection()){
 				PreparedStatement statement = handler.prepareStatement("SELECT bantime FROM users WHERE username = ? OR ipaddr = ?");
 
-				statement.setString(1, player.getCommandSenderName());
+				statement.setString(1, player.getCommandSenderEntity().getName());
 				statement.setString(2, player.getPlayerIP());
 
 				handler._rs = statement.executeQuery();
