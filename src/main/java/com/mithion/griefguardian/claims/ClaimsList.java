@@ -155,9 +155,8 @@ public class ClaimsList {
 			return ActionResults.CLAIM_INTERSECTS;
 
 		Claim newClaim = new Claim(requester.getCommandSenderEntity().getName(), bb);
-		if (!claimCache.containsKey(requester.getCommandSenderEntity()))
-			claimCache.put(requester.getCommandSenderEntity().getName(), new ArrayList<Claim>());
-		claimCache.get(requester.getCommandSenderEntity()).add(newClaim);
+		if (!claimCache.containsKey(requester.getCommandSenderEntity().getName())) claimCache.put(requester.getCommandSenderEntity().getName(), new ArrayList<Claim>());
+		claimCache.get(requester.getCommandSenderEntity().getName()).add(newClaim);
 		return ActionResults.SUCCESS;
 	}
 
