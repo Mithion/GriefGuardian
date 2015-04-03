@@ -2,6 +2,7 @@ package com.mithion.griefguardian.commands;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 
@@ -21,7 +22,13 @@ public class AdminMode extends CommandBase{
 
 	@Override
 	public void processCommand(ICommandSender commandSender, String[] args) {
-		EntityPlayerMP player = getCommandSenderAsPlayer(commandSender);
+		EntityPlayerMP player;
+		try {
+			player = getCommandSenderAsPlayer(commandSender);
+		} catch (PlayerNotFoundException e) {
+			e.printStackTrace();
+			return;
+		}
 		if (PlayerDataUtils.hasMasterACL(player)){
 			PlayerDataUtils.setMasterACL(player, false);
 			commandSender.addChatMessage(new ChatComponentText("griefguardian.commands.adminmodeoff"));

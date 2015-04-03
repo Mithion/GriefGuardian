@@ -1,14 +1,15 @@
 package com.mithion.griefguardian.commands;
 
-import com.mithion.griefguardian.claims.ClaimsList;
-import com.mithion.griefguardian.claims.ClaimsList.ActionResults;
-
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Vec3;
+
+import com.mithion.griefguardian.claims.ClaimsList;
+import com.mithion.griefguardian.claims.ClaimsList.ActionResults;
 
 public class ClaimCommand extends CommandBase{
 
@@ -29,7 +30,13 @@ public class ClaimCommand extends CommandBase{
 
 	@Override
 	public void processCommand(ICommandSender commandSender, String[] args) {
-		EntityPlayerMP player = getCommandSenderAsPlayer(commandSender);
+		EntityPlayerMP player;
+		try {
+			player = getCommandSenderAsPlayer(commandSender);
+		} catch (PlayerNotFoundException e) {
+			e.printStackTrace();
+			return;
+		}
 		NBTTagCompound compound = player.getEntityData();
 		if (!compound.hasKey(CLAIM_STATE) || compound.getBoolean(CLAIM_STATE) == false){
 			compound.setInteger(CLAIM_START_X, (int)Math.floor(player.posX));
@@ -39,8 +46,8 @@ public class ClaimCommand extends CommandBase{
 			commandSender.addChatMessage(new ChatComponentText("griefguardian.commands.claimstart"));
 		}else{
 			compound.setBoolean(CLAIM_STATE, false);
-			Vec3 start = Vec3.createVectorHelper(compound.getInteger(CLAIM_START_X), compound.getInteger(CLAIM_START_Y), compound.getInteger(CLAIM_START_Z));
-			Vec3 end = Vec3.createVectorHelper((int)Math.floor(player.posX), (int)Math.floor(player.posY), (int)Math.floor(player.posZ));
+			Vec3 start = new Vec3(compound.getInteger(CLAIM_START_X), compound.getInteger(CLAIM_START_Y), compound.getInteger(CLAIM_START_Z));
+			Vec3 end = new Vec3((int)Math.floor(player.posX), (int)Math.floor(player.posY), (int)Math.floor(player.posZ));
 			if (start.distanceTo(end) < 10){
 				commandSender.addChatMessage(new ChatComponentText("griefguardian.commands.claimtoosmall"));
 				return;

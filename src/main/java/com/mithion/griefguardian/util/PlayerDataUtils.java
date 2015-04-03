@@ -15,10 +15,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.fml.common.FMLLog;
 
 import com.mojang.authlib.GameProfile;
-
-import cpw.mods.fml.common.FMLLog;
 
 public class PlayerDataUtils {
 	private static final String RENDER_CLAIMS = "gg_render_claims";
@@ -27,11 +26,11 @@ public class PlayerDataUtils {
 
 	private static NBTTagCompound globalWarpPoints;
 
-	private static final int ADMIN_INVIS_ON = 1;
-	private static final int ADMIN_INVIS_OFF = 0;
+	private static final double ADMIN_INVIS_ON = 1;
+	private static final double ADMIN_INVIS_OFF = 0;
 
 	private static final UUID adminInvisAttr = UUID.fromString("8a273900-3699-11e4-8510-0800200c9a66");
-	private static final IAttribute adminInvis = new RangedAttribute("admin_invisibility", ADMIN_INVIS_OFF, ADMIN_INVIS_OFF, ADMIN_INVIS_ON).setShouldWatch(true);	
+	private static final IAttribute adminInvis = new RangedAttribute(null, "admin_invisibility", ADMIN_INVIS_OFF, ADMIN_INVIS_OFF, ADMIN_INVIS_ON).setShouldWatch(true);
 	private static final AttributeModifier adminInvisOn = new AttributeModifier(adminInvisAttr, "admin_invis_on", ADMIN_INVIS_ON, 0);
 
 	private static File instanceDirectory;
@@ -80,7 +79,7 @@ public class PlayerDataUtils {
 
 	public static NBTTagCompound loadOfflinePlayerData(String playerName){
 
-		GameProfile gp = MinecraftServer.getServer().func_152358_ax().func_152655_a(playerName);
+		GameProfile gp = MinecraftServer.getServer().getPlayerProfileCache().getGameProfileForUsername(playerName);
 
 		String basePath = instanceDirectory.getAbsolutePath() + File.separatorChar;
 		if (MinecraftServer.getServer().isSinglePlayer())
@@ -98,7 +97,7 @@ public class PlayerDataUtils {
 	}
 
 	public static void SaveOfflinePlayerData(String playerName, NBTTagCompound compound){
-		GameProfile gp = MinecraftServer.getServer().func_152358_ax().func_152655_a(playerName);
+		GameProfile gp = MinecraftServer.getServer().getPlayerProfileCache().getGameProfileForUsername(playerName);
 
 		String basePath = instanceDirectory.getAbsolutePath() + File.separatorChar;
 		if (MinecraftServer.getServer().isSinglePlayer())

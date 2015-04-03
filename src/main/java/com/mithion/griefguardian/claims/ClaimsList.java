@@ -10,11 +10,10 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLLog;
 
 import com.mithion.griefguardian.network.PacketSyncClaims;
 import com.mithion.griefguardian.util.PlayerDataUtils;
-
-import cpw.mods.fml.common.FMLLog;
 
 /**
  * Contains all claims for a given world.
@@ -87,7 +86,7 @@ public class ClaimsList {
 			return true;
 
 		//check player name & master ACL
-		if (PlayerDataUtils.hasMasterACL(player) || claim.actionIsPermitted(player.getCommandSenderName(), action))
+		if (PlayerDataUtils.hasMasterACL(player) || claim.actionIsPermitted(player.getCommandSenderEntity().getName(), action))
 			return true;
 
 		//check player teams
@@ -105,7 +104,7 @@ public class ClaimsList {
 			return ActionResults.NO_CLAIM_PRESENT;
 
 		//can the requester modify the ACL?
-		if (!claim.actionIsPermitted(requester.getCommandSenderName(), PermissionsMutex.MODIFY_ACL))
+		if (!claim.actionIsPermitted(requester.getCommandSenderEntity().getName(), PermissionsMutex.MODIFY_ACL))
 			return ActionResults.DENIED;
 
 		//do eet
@@ -120,7 +119,7 @@ public class ClaimsList {
 			return ActionResults.NO_CLAIM_PRESENT;
 
 		//can the requester modify the ACL?
-		if (!claim.actionIsPermitted(requester.getCommandSenderName(), PermissionsMutex.MODIFY_ACL))
+		if (!claim.actionIsPermitted(requester.getCommandSenderEntity().getName(), PermissionsMutex.MODIFY_ACL))
 			return ActionResults.DENIED;
 
 		//do eet
@@ -135,7 +134,7 @@ public class ClaimsList {
 			return ActionResults.NO_CLAIM_PRESENT;
 
 		//can the requester modify the ACL?
-		if (!claim.actionIsPermitted(requester.getCommandSenderName(), PermissionsMutex.MODIFY_ACL))
+		if (!claim.actionIsPermitted(requester.getCommandSenderEntity().getName(), PermissionsMutex.MODIFY_ACL))
 			return ActionResults.DENIED;
 
 		//do eet
@@ -144,7 +143,7 @@ public class ClaimsList {
 	}
 
 	public ActionResults tryClaimArea(ICommandSender requester, Vec3 start, Vec3 end){
-		AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(
+		AxisAlignedBB bb = AxisAlignedBB.fromBounds(
 				Math.min(start.xCoord, end.xCoord) - 0.5f, 
 				Math.min(start.yCoord, end.yCoord) - 0.5f, 
 				Math.min(start.zCoord, end.zCoord) - 0.5f, 
@@ -155,10 +154,9 @@ public class ClaimsList {
 		if (claim != null)
 			return ActionResults.CLAIM_INTERSECTS;
 
-		Claim newClaim = new Claim(requester.getCommandSenderName(), bb);
-		if (!claimCache.containsKey(requester.getCommandSenderName()))
-			claimCache.put(requester.getCommandSenderName(), new ArrayList<Claim>());
-		claimCache.get(requester.getCommandSenderName()).add(newClaim);
+		Claim newClaim = new Claim(requester.getCommandSenderEntity().getName(), bb);
+		if (!claimCache.containsKey(requester.getCommandSenderEntity().getName())) claimCache.put(requester.getCommandSenderEntity().getName(), new ArrayList<Claim>());
+		claimCache.get(requester.getCommandSenderEntity().getName()).add(newClaim);
 		return ActionResults.SUCCESS;
 	}
 
@@ -170,7 +168,7 @@ public class ClaimsList {
 		if (!actionIsTrusted(player, PermissionsMutex.DELETE_CLAIM, player.posX, player.posY, player.posZ))
 			return ActionResults.DENIED;
 
-		claimCache.get(player.getCommandSenderName()).remove(claim);
+		claimCache.get(player.getCommandSenderEntity()).remove(claim);
 		return ActionResults.SUCCESS;
 	}
 
@@ -186,6 +184,7 @@ public class ClaimsList {
 		return ActionResults.SUCCESS;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void loadFromSyncPacket(PacketSyncClaims pkt){
 		HashMap<String, ArrayList<Claim>> data = pkt.getData();
 		if (!pkt.updateClaims())
@@ -207,7 +206,7 @@ public class ClaimsList {
 		if (!isStopRender){
 			ArrayList<Claim> claims = getClaimsForPlayer(player, PermissionsMutex.ALL_FLAGS, true);
 			for (Claim claim : claims)
-				pkt.addBoundingBox(player.getCommandSenderName(), claim);
+				pkt.addBoundingBox(player.getCommandSenderEntity().getName(), claim);
 		}else{
 			pkt.setStopRenderPacket();
 		}
@@ -247,12 +246,12 @@ public class ClaimsList {
 		
 		ArrayList<Claim> claims = new ArrayList<Claim>();
 		for (String s : setToUse.keySet()){
-			if (s.equals(player.getCommandSenderName())){
+			if (s.equals(player.getCommandSenderEntity())){
 				claims.addAll(setToUse.get(s));
 			}else{
 				for (Claim claim : setToUse.get(s)){
-					if ( (any && PermissionsMutex.checkAnyFlags(claim.getPermissionMask(player.getCommandSenderName()), permissionTests)) ||
-							(!any && PermissionsMutex.checkAllFlags(claim.getPermissionMask(player.getCommandSenderName()), permissionTests))){
+					if ( (any && PermissionsMutex.checkAnyFlags(claim.getPermissionMask(player.getCommandSenderEntity().getName()), permissionTests)) ||
+							(!any && PermissionsMutex.checkAllFlags(claim.getPermissionMask(player.getCommandSenderEntity().getName()), permissionTests))){
 						claims.add(claim);
 					}
 				}

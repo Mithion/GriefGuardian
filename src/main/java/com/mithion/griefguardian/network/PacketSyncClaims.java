@@ -1,15 +1,13 @@
 package com.mithion.griefguardian.network;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.mithion.griefguardian.claims.Claim;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.AxisAlignedBB;
-import io.netty.buffer.ByteBuf;
-import cpw.mods.fml.common.network.ByteBufUtils;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import com.mithion.griefguardian.claims.Claim;
 
 /**
  * Message for transferring all claims owned by a player from server

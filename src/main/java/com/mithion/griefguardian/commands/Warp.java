@@ -2,13 +2,15 @@ package com.mithion.griefguardian.commands;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.NumberInvalidException;
+import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.WorldServer;
 
 import com.mithion.griefguardian.util.PlayerDataUtils;
@@ -27,7 +29,7 @@ public class Warp extends CommandBase {
 	}
 
 	@Override
-	public void processCommand(ICommandSender commandSender, String[] args) {
+	public void processCommand(ICommandSender commandSender, String[] args) throws WrongUsageException {
 		int argIndex = 0;
 
 		String warpName = "";
@@ -37,9 +39,19 @@ public class Warp extends CommandBase {
 		EntityPlayerMP warpTarget = null;		
 
 		if (args[argIndex].toUpperCase().equals("SET") || args[argIndex].toUpperCase().equals("TO"))
-			warpTarget = getCommandSenderAsPlayer(commandSender);	
+			try {
+				warpTarget = getCommandSenderAsPlayer(commandSender);
+			} catch (PlayerNotFoundException e) {
+				e.printStackTrace();
+				return;
+			}
 		else
-			warpTarget = getPlayer(commandSender, args[argIndex++]);
+			try {
+				warpTarget = getPlayer(commandSender, args[argIndex++]);
+			} catch (PlayerNotFoundException e) {
+				e.printStackTrace();
+				return;
+			}
 
 
 		if (args[argIndex].toUpperCase().equals("SET")){
@@ -63,8 +75,8 @@ public class Warp extends CommandBase {
 			warpPoint = getWarpPoint(warpTarget, true);
 		}else if (args[argIndex].toUpperCase().equals("WORLDSPAWN")){ //SPAWN keyword
 			//resolve the spawn point for the current dimension
-			ChunkCoordinates spawnCoords = warpTarget.worldObj.provider.getSpawnPoint();
-			warpPoint = new WarpPoint(spawnCoords.posX, spawnCoords.posY, spawnCoords.posZ, warpTarget.worldObj.provider.dimensionId);
+			BlockPos spawnCoords = warpTarget.worldObj.provider.getSpawnPoint();
+			warpPoint = new WarpPoint(spawnCoords.getX(), spawnCoords.getY(), spawnCoords.getZ(), warpTarget.worldObj.provider.getDimensionId());
 		}else if (args[argIndex].toUpperCase().equals("WP")){ //looking to warp to a waypoint
 			argIndex++;
 			//check local waypoints
@@ -77,7 +89,7 @@ public class Warp extends CommandBase {
 				//attempt to resolve the specified player by name
 				EntityPlayerMP destinationTarget = getPlayer(commandSender, args[argIndex]);
 				//found it!  Construct a warp point from the located player.
-				warpPoint = new WarpPoint(destinationTarget.posX, destinationTarget.posY, destinationTarget.posZ, destinationTarget.worldObj.provider.dimensionId);
+				warpPoint = new WarpPoint(destinationTarget.posX, destinationTarget.posY, destinationTarget.posZ, destinationTarget.worldObj.provider.getDimensionId());
 			}catch(Throwable t){
 				//couldn't find it...attempt to load their offline data and get the result that way
 				warpPoint = getWarpPointFromOfflineData(PlayerDataUtils.loadOfflinePlayerData(args[argIndex]), false);
@@ -94,11 +106,18 @@ public class Warp extends CommandBase {
 			}
 		}else{ //x,y,z (possibly dimension)
 			//parse x, y, z
-			double x = parseDouble(commandSender, args[argIndex++]);
-			double y = parseDouble(commandSender, args[argIndex++]);
-			double z = parseDouble(commandSender, args[argIndex++]);
+			double x, y, z;
+			int dimension;
+			try {
+				x = parseDouble(args[argIndex++]);
+				y = parseDouble(args[argIndex++]);
+				z = parseDouble(args[argIndex++]);
+				dimension = (argIndex < args.length - 1) ? parseInt(args[argIndex]) : warpTarget.worldObj.provider.getDimensionId();
+			} catch (NumberInvalidException e) {
+				e.printStackTrace();
+				return;
+			}
 			//parse dimension if the arg is there, otherwise use the current dim
-			int dimension = (argIndex < args.length - 1) ? parseInt(commandSender, args[argIndex]) : warpTarget.worldObj.provider.dimensionId;
 			warpPoint = new WarpPoint(x, y, z, dimension);
 		}
 
@@ -106,40 +125,41 @@ public class Warp extends CommandBase {
 		if (warpPoint != null){
 			if (!saveWarpLoc){
 				//is a dimension transfer needed??
-				if (warpPoint.dimension != warpTarget.worldObj.provider.dimensionId){
+				if (warpPoint.dimension != warpTarget.worldObj.provider.getDimensionId()){
 					commandSender.addChatMessage(new ChatComponentText("That isn't implemented yet!"));
 				}else{ //nope, just update the position
 					warpTarget.setPositionAndUpdate(warpPoint.x, warpPoint.y, warpPoint.z);
 				}
 
-				this.func_152373_a(commandSender, this, String.format(
+				//TODO: zet in chat:
+				/*this.func_152373_a(commandSender, this, String.format(
 						"Warped %s to %.1f, %.1f, %.1f (dim %d)", 
-						warpTarget.getCommandSenderName(), 
+						warpTarget.getCommandSenderEntity().getName(), 
 						warpPoint.x, 
 						warpPoint.y, 
 						warpPoint.z, 
-						warpPoint.dimension));
+						warpPoint.dimension));*/
 			}else{				
 				if (globalWarp){
 					PlayerDataUtils.saveGlobalWarpPoint(warpName, warpPoint);
-					this.func_152373_a(commandSender, this, String.format(
+					/*this.func_152373_a(commandSender, this, String.format(
 							"Saved [%.1f, %.1f, %.1f (dim %d)] as a [GLOBAL] warp point named %s", 							
 							warpPoint.x, 
 							warpPoint.y, 
 							warpPoint.z, 
 							warpPoint.dimension,
 							warpName,
-							warpTarget.getCommandSenderName()));
+							warpTarget.getCommandSenderEntity()));*/
 				}else{
 					PlayerDataUtils.saveLocalWarpPoint(warpTarget, warpName, warpPoint);
-					this.func_152373_a(commandSender, this, String.format(
+					/*this.func_152373_a(commandSender, this, String.format(
 							"Saved [%.1f, %.1f, %.1f (dim %d)] as a warp point named %s for %s", 							
 							warpPoint.x, 
 							warpPoint.y, 
 							warpPoint.z, 
 							warpPoint.dimension,
 							warpName,
-							warpTarget.getCommandSenderName()));
+							warpTarget.getCommandSenderEntity()));*/
 				}
 			}
 		}else{
@@ -149,13 +169,13 @@ public class Warp extends CommandBase {
 
 	private WarpPoint getWarpPoint(EntityPlayerMP player, boolean spawn){
 		if (spawn){
-			ChunkCoordinates spawnCoords = player.getBedLocation(player.worldObj.provider.dimensionId);
+			BlockPos spawnCoords = player.getBedLocation(player.worldObj.provider.getDimensionId());
 			if (spawnCoords == null)
 				spawnCoords = player.worldObj.provider.getSpawnPoint();
 
-			return new WarpPoint(spawnCoords.posX, spawnCoords.posY, spawnCoords.posZ, player.worldObj.provider.dimensionId);
+			return new WarpPoint(spawnCoords.getX(), spawnCoords.getY(), spawnCoords.getZ(), player.worldObj.provider.getDimensionId());
 		}else{
-			return new WarpPoint(player.posX, player.posY, player.posZ, player.worldObj.provider.dimensionId);
+			return new WarpPoint(player.posX, player.posY, player.posZ, player.worldObj.provider.getDimensionId());
 		}
 	}
 
@@ -174,9 +194,9 @@ public class Warp extends CommandBase {
 			NBTTagList pos = offlineData.getTagList("Pos", 6);
 			if (pos == null || pos.tagCount() != 3)
 				return null;
-			double x = pos.func_150309_d(0);
-			double y = pos.func_150309_d(1);
-			double z = pos.func_150309_d(2);
+			double x = pos.getDouble(0);
+			double y = pos.getDouble(1);
+			double z = pos.getDouble(2);
 			int dim = offlineData.getInteger("Dimension");
 
 			return new WarpPoint(x, y, z, dim);
@@ -186,7 +206,7 @@ public class Warp extends CommandBase {
 	private int getDimensionFromWorldName(String worldName){
 		for (WorldServer ws : MinecraftServer.getServer().worldServers){
 			if (ws.provider.getDimensionName().equals(worldName))
-				return ws.provider.dimensionId;
+				return ws.provider.getDimensionId();
 		}
 		//default to the overworld just to be safe
 		return 0;

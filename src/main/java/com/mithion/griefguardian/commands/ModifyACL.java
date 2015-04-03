@@ -2,23 +2,22 @@ package com.mithion.griefguardian.commands;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.security.InvalidAlgorithmParameterException;
 import java.util.ArrayList;
 import java.util.List;
+
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerNotFoundException;
+import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.scoreboard.Team;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
 
 import com.mithion.griefguardian.claims.ClaimManager;
 import com.mithion.griefguardian.claims.ClaimsList;
 import com.mithion.griefguardian.claims.ClaimsList.ActionResults;
 import com.mithion.griefguardian.claims.PermissionsMutex;
-
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.WrongUsageException;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChunkCoordinates;
 
 public class ModifyACL extends CommandBase{
 
@@ -38,26 +37,32 @@ public class ModifyACL extends CommandBase{
 	}
 
 	@Override
-	public void processCommand(ICommandSender commandSender, String[] args) {
+	public void processCommand(ICommandSender commandSender, String[] args) throws WrongUsageException {
 		if ((args.length == 2 && args[0].toUpperCase().trim() != "CLEAR") || args.length < 3){
 			throw new WrongUsageException(getCommandUsage(commandSender), new Object[0]);
 		}
 		if (args.length == 2){
-			ChunkCoordinates coords = commandSender.getPlayerCoordinates();
-			ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).clearClaimPermissions(commandSender, args[1].trim(), coords.posX, coords.posY, coords.posZ);
+			BlockPos coords = commandSender.getPosition();
+			ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).clearClaimPermissions(commandSender, args[1].trim(), coords.getX(), coords.getY(), coords.getZ());
 			commandSender.addChatMessage(new ChatComponentText(res.message));
 		}else{
-			ChunkCoordinates coords = commandSender.getPlayerCoordinates();
+			BlockPos coords = commandSender.getPosition();
 			int mask = buildFlagsFromArgs(stripArray(args, 2));
 			
-			Team team = getCommandSenderAsPlayer(commandSender).getWorldScoreboard().getTeam(args[1].trim());
+			Team team;
+			try {
+				team = getCommandSenderAsPlayer(commandSender).getWorldScoreboard().getTeam(args[1].trim());
+			} catch (PlayerNotFoundException e) {
+				e.printStackTrace();
+				return;
+			}
 			String identifier = team == null ? args[1].trim() : ClaimManager.instance.createTeamIdentifier(team);
 			
 			if (args[0].toUpperCase().trim().equals("ADD")){				
-				ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).addClaimPermissions(commandSender, identifier, mask, coords.posX, coords.posY, coords.posZ);
+				ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).addClaimPermissions(commandSender, identifier, mask, coords.getX(), coords.getY(), coords.getZ());
 				commandSender.addChatMessage(new ChatComponentText(res.message));
 			}else if (args[0].toUpperCase().trim().equals("REMOVE")){
-				ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).removeClaimPermissions(commandSender, identifier, mask, coords.posX, coords.posY, coords.posZ);
+				ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).removeClaimPermissions(commandSender, identifier, mask, coords.getX(), coords.getY(), coords.getZ());
 				commandSender.addChatMessage(new ChatComponentText(res.message));
 			}else{
 				throw new WrongUsageException(getCommandUsage(commandSender), new Object[0]);
@@ -101,8 +106,9 @@ public class ModifyACL extends CommandBase{
 		return mask;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
-	public List addTabCompletionOptions(ICommandSender commandSender, String[] currentArgs) {
+	public List addTabCompletionOptions(ICommandSender commandSender, String[] currentArgs, BlockPos pos) {
 		ArrayList<String> choices = new ArrayList<String>();
 		if (currentArgs.length == 1){ //need Add|REMOVE|CLEAR
 			return getListOfStringsMatchingLastWord(currentArgs, "ADD", "REMOVE", "CLEAR");
@@ -110,7 +116,7 @@ public class ModifyACL extends CommandBase{
 			choices.add("EVERYONE");
 			for (Object o : commandSender.getEntityWorld().playerEntities){
 				EntityPlayer p = (EntityPlayer)o;
-				choices.add(p.getCommandSenderName());
+				choices.add(p.getCommandSenderEntity().getName());
 			}
 			for (Object o : commandSender.getEntityWorld().getScoreboard().getTeamNames()){
 				String s = (String)o;
