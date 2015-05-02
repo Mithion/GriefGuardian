@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.server.S2DPacketOpenWindow;
+import net.minecraft.util.IChatComponent;
 
 import com.mithion.griefguardian.gui.ContainerRemoteInventory;
 
@@ -147,15 +148,6 @@ public class OfflineInventory implements IInventory {
 			itemstack.stackSize = getInventoryStackLimit();
 		}
 	}
-	@Override
-	public String getInventoryName() {
-		return userName;
-	}
-
-	@Override
-	public boolean hasCustomInventoryName() {
-		return false;
-	}
 
 	@Override
 	public int getInventoryStackLimit() {
@@ -172,14 +164,6 @@ public class OfflineInventory implements IInventory {
 	}
 
 	@Override
-	public void openInventory() {
-	}
-
-	@Override
-	public void closeInventory() {
-	}
-
-	@Override
 	public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_) {
 		return true;
 	}
@@ -191,9 +175,61 @@ public class OfflineInventory implements IInventory {
         }
 
 		player.getNextWindowId();
-		player.playerNetServerHandler.sendPacket(new S2DPacketOpenWindow(player.currentWindowId, 0, target.getInventoryName(), target.getSizeInventory(), target.hasCustomInventoryName()));
-		player.openContainer = new ContainerRemoteInventory(player.inventory, target, offlineUserName);
+		player.playerNetServerHandler.sendPacket(new S2DPacketOpenWindow());
+		player.openContainer = new ContainerRemoteInventory(player.inventory, target, player);
         player.openContainer.windowId = player.currentWindowId;
         player.openContainer.addCraftingToCrafters(player);
+	}
+
+	@Override
+	public String getName() {
+		return userName;
+	}
+
+	@Override
+	public boolean hasCustomName() {
+		return false;
+	}
+
+	@Override
+	public IChatComponent getDisplayName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void openInventory(EntityPlayer playerIn) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void closeInventory(EntityPlayer playerIn) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getField(int id) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setField(int id, int value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getFieldCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
 	}
 }

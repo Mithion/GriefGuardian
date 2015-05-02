@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -25,7 +26,7 @@ public class PermaBan extends CommandBase{
 	}
 
 	@Override
-	public void processCommand(ICommandSender commandSender, String[] args){
+	public void processCommand(ICommandSender commandSender, String[] args) throws WrongUsageException{
 		if (args.length != 1 && args.length != 2 && args.length != 3){
 			throw new WrongUsageException(getCommandUsage(commandSender));
 		}
@@ -35,20 +36,26 @@ public class PermaBan extends CommandBase{
 		boolean noMatch = false;
 		try{
 			if (args.length >= 2)
-				ipBan = parseBoolean(commandSender, args[1]);
+				ipBan = parseBoolean(args[1]);
 		}catch (Throwable t){
 			throw new WrongUsageException("Arg 3 must be a boolean (true or false)!");
 		}
 		try{
 			if (args.length == 3)
-				noMatch = parseBoolean(commandSender, args[2]);
+				noMatch = parseBoolean(args[2]);
 		}catch (Throwable t){
 			throw new WrongUsageException("Arg 4 must be a boolean (true or false)!");
 		}
 		
-		long time = MinecraftServer.getSystemTimeMillis();
+		long time = MinecraftServer.getCurrentTimeMillis();
 		
-		EntityPlayerMP player = getPlayer(commandSender, identString);
+		EntityPlayerMP player;
+		try {
+			player = getPlayer(commandSender, identString);
+		} catch (PlayerNotFoundException e) {
+			e.printStackTrace();
+			return;
+		}
 		
 		if (player == null && !noMatch){
 			throw new WrongUsageException("Player not found.  Consider setting the no match flag if the player is not online.");
@@ -59,7 +66,7 @@ public class PermaBan extends CommandBase{
 				throw new WrongUsageException("Invalid IP Address specified.");
 			}
 			GriefGuardian._dal.permaBanIP(identString, time);
-			List<EntityPlayerMP> list = MinecraftServer.getServer().getConfigurationManager().getPlayerList(identString);
+			List<EntityPlayerMP> list = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
 			for (EntityPlayerMP p : list){
 				p.playerNetServerHandler.kickPlayerFromServer(String.format("You have been permanently banned from the server."));
 			}
@@ -70,7 +77,7 @@ public class PermaBan extends CommandBase{
 			}
 		}
 		
-		func_152373_a(commandSender, this, "%s has been given a perma ban.", identString);
+		//TODO: zet in chat %s has been given a perma ban
 	}
 	
 }

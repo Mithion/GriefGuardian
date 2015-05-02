@@ -1,13 +1,13 @@
 package com.mithion.griefguardian.commands;
 
-import com.mithion.griefguardian.claims.ClaimsList;
-import com.mithion.griefguardian.claims.ClaimsList.ActionResults;
-
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;
+
+import com.mithion.griefguardian.claims.ClaimsList;
+import com.mithion.griefguardian.claims.ClaimsList.ActionResults;
 
 public class DeleteClaim extends CommandBase{
 
@@ -23,8 +23,13 @@ public class DeleteClaim extends CommandBase{
 
 	@Override
 	public void processCommand(ICommandSender commandSender, String[] args) {
-		EntityPlayerMP player = getCommandSenderAsPlayer(commandSender);
-		NBTTagCompound compound = player.getEntityData();
+		EntityPlayerMP player;
+		try {
+			player = getCommandSenderAsPlayer(commandSender);
+		} catch (PlayerNotFoundException e) {
+			e.printStackTrace();
+			return;
+		}
 		ActionResults res = ClaimsList.For(commandSender.getEntityWorld()).tryDeleteClaim(player);
 		commandSender.addChatMessage(new ChatComponentText(res.message));
 	}

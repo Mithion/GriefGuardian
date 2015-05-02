@@ -2,9 +2,9 @@ package com.mithion.griefguardian.dal;
 
 import java.util.HashMap;
 
-import com.mithion.griefguardian.GriefGuardian;
+import net.minecraftforge.fml.common.FMLLog;
 
-import cpw.mods.fml.common.FMLLog;
+import com.mithion.griefguardian.GriefGuardian;
 
 public class LoggableActionManager {
 	private final HashMap<Integer, LoggableAction> loggableActions;

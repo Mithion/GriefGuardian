@@ -1,17 +1,18 @@
 package com.mithion.griefguardian.util;
 
-import org.lwjgl.opengl.GL11;
-
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.AxisAlignedBB;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
 public class RenderUtils {
 	public static void renderBoundingBox(AxisAlignedBB boundingBox, int boxColor, int outlineColor){
-		Tessellator tessellator = Tessellator.instance;
+		Tessellator tessellator = Tessellator.getInstance();
+		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
 		int alpha = 60;
 		double XOffset = 0.5;
 		double YOffset = 0.5;
@@ -29,42 +30,41 @@ public class RenderUtils {
 		GL11.glDepthMask(false);
 		
 		//box
-		tessellator.startDrawingQuads();
 
         if (outlineColor != -1)
         {
-            tessellator.setColorRGBA_I(boxColor, alpha);
+            worldrenderer.func_178974_a(boxColor, alpha);
         }
 
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
         
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
         
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
         
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
         
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
         
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
         
         tessellator.draw();
 		        
@@ -73,47 +73,47 @@ public class RenderUtils {
         GL11.glPopAttrib();
         
         //outline		
-        tessellator.startDrawing(3);
+        worldrenderer.startDrawing(3);
 
         if (outlineColor != -1)
         {
-            tessellator.setColorOpaque_I(outlineColor);
+            worldrenderer.func_178991_c(outlineColor);
         }
 
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
         tessellator.draw();
-        tessellator.startDrawing(3);
+        worldrenderer.startDrawing(3);
 
         if (outlineColor != -1)
         {
-            tessellator.setColorOpaque_I(outlineColor);
+            worldrenderer.func_178991_c(outlineColor);
         }
 
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
         tessellator.draw();
-        tessellator.startDrawing(1);
+        worldrenderer.startDrawing(1);
 
         if (outlineColor != -1)
         {
-            tessellator.setColorOpaque_I(outlineColor);
+            worldrenderer.func_178991_c(outlineColor);
         }
 
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
-        tessellator.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.minZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.maxX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.minY + YOffset, boundingBox.maxZ + ZOffset);
+        worldrenderer.addVertex(boundingBox.minX + XOffset, boundingBox.maxY - YOffset, boundingBox.maxZ + ZOffset);
         tessellator.draw();
         
         GL11.glEnable(GL11.GL_TEXTURE_2D);

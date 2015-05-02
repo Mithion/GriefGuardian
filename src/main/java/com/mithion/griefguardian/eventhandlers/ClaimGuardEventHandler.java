@@ -17,13 +17,12 @@ import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.mithion.griefguardian.GriefGuardian;
 import com.mithion.griefguardian.api.Actions;
 import com.mithion.griefguardian.claims.ClaimsList;
 import com.mithion.griefguardian.claims.PermissionsMutex;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 /*
  * Contains all the 'entry point' event handlers for Forge events.
@@ -102,7 +101,7 @@ public class ClaimGuardEventHandler {
 		if (event.entityPlayer.worldObj.isRemote)
 			return;
 
-		if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.USE_BONEMEAL, event.x, event.y, event.z))
+		if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.USE_BONEMEAL, event.pos.getX(), event.pos.getY(), event.pos.getZ()))
 			event.setCanceled(true);
 		else
 			GriefGuardian._dal.logAction(
@@ -138,7 +137,7 @@ public class ClaimGuardEventHandler {
 		if (event.entityPlayer.worldObj.isRemote)
 			return;
 
-		if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.USE_ITEMS, event.target.blockX, event.target.blockY, event.target.blockZ))
+		if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.USE_ITEMS, event.target.func_178782_a().getX(), event.target.func_178782_a().getY(), event.target.func_178782_a().getZ()))
 			event.setCanceled(true);
 		else
 			GriefGuardian._dal.logAction(
@@ -160,7 +159,7 @@ public class ClaimGuardEventHandler {
 		case LEFT_CLICK_BLOCK:
 			break;
 		case RIGHT_CLICK_AIR:
-			if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.USE_ITEMS, event.x, event.y, event.z))
+			if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.USE_ITEMS, event.pos.getX(), event.pos.getY(), event.pos.getZ()))
 				event.setCanceled(true);
 			else
 				GriefGuardian._dal.logAction(
@@ -173,9 +172,9 @@ public class ClaimGuardEventHandler {
 						"");
 			break;
 		case RIGHT_CLICK_BLOCK:
-			TileEntity te = event.entity.worldObj.getTileEntity(event.x, event.y, event.z);
+			TileEntity te = event.entity.worldObj.getTileEntity(event.pos);
 			if (te != null && !event.entityPlayer.isSneaking()){
-				if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.OPEN_CONTAINERS, event.x, event.y, event.z))
+				if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.OPEN_CONTAINERS, event.pos.getX(), event.pos.getY(), event.pos.getZ()))
 					event.setCanceled(true);
 				else
 					GriefGuardian._dal.logAction(
@@ -184,16 +183,16 @@ public class ClaimGuardEventHandler {
 							(int)Math.floor(event.entity.posX), 
 							(int)Math.floor(event.entity.posY), 
 							(int)Math.floor(event.entity.posZ), 
-							new ItemStack(event.world.getBlock(event.x, event.y, event.z), 1, event.world.getBlockMetadata(event.x, event.y, event.z)), 
+							new ItemStack(event.world.getBlockState(event.pos).getBlock()), 
 							"");
 			}else{
 				ItemStack currentItem = event.entityPlayer.getCurrentEquippedItem();
 				if (currentItem != null && currentItem.getItem() instanceof ItemBlock){
-					int x = event.x;
-					int y = event.y;
-					int z = event.z;
-
-					switch(event.face){
+					int x = event.pos.getX();
+					int y = event.pos.getY();
+					int z = event.pos.getZ();
+					
+					switch(event.face.getIndex()){
 					case 0:
 						y--;
 						break;
@@ -220,21 +219,21 @@ public class ClaimGuardEventHandler {
 						GriefGuardian._dal.logAction(
 								(EntityPlayerMP)event.entityPlayer, 
 								Actions.BLOCK_PLACE, 
-								(int)Math.floor(event.x), 
-								(int)Math.floor(event.y), 
-								(int)Math.floor(event.z), 
+								(int)Math.floor(x), 
+								(int)Math.floor(y), 
+								(int)Math.floor(z), 
 								event.entityPlayer.getCurrentEquippedItem(), 
 								"");
 				}else if (currentItem != null){
-					if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.USE_ITEMS, event.x, event.y, event.z))
+					if (!ClaimsList.For(event.entity.worldObj).actionIsTrusted(event.entityPlayer, PermissionsMutex.USE_ITEMS, event.pos.getX(), event.pos.getY(), event.pos.getZ()))
 						event.setCanceled(true);
 					else
 						GriefGuardian._dal.logAction(
 								(EntityPlayerMP)event.entityPlayer, 
 								Actions.ITEM_USE, 
-								(int)Math.floor(event.x), 
-								(int)Math.floor(event.y), 
-								(int)Math.floor(event.z), 
+								(int)Math.floor(event.pos.getX()), 
+								(int)Math.floor(event.pos.getY()), 
+								(int)Math.floor(event.pos.getZ()), 
 								event.entityPlayer.getCurrentEquippedItem(), 
 								"");
 				}
@@ -277,16 +276,16 @@ public class ClaimGuardEventHandler {
 		if (event.getPlayer().worldObj.isRemote)
 			return;
 
-		if (!ClaimsList.For(event.getPlayer().worldObj).actionIsTrusted(event.getPlayer(), PermissionsMutex.BREAK_BLOCKS, event.x, event.y, event.z))
+		if (!ClaimsList.For(event.getPlayer().worldObj).actionIsTrusted(event.getPlayer(), PermissionsMutex.BREAK_BLOCKS, event.pos.getX(), event.pos.getY(), event.pos.getZ()))
 			event.setCanceled(true);
 		else
 			GriefGuardian._dal.logAction(
 					(EntityPlayerMP)event.getPlayer(), 
 					Actions.BLOCK_BREAK, 
-					(int)Math.floor(event.x), 
-					(int)Math.floor(event.y), 
-					(int)Math.floor(event.z), 
-					new ItemStack(event.block, 1, event.blockMetadata), 
+					(int)Math.floor(event.pos.getX()), 
+					(int)Math.floor(event.pos.getY()), 
+					(int)Math.floor(event.pos.getZ()), 
+					new ItemStack(event.state.getBlock(), 1, event.state.getBlock().getMetaFromState(event.state)), 
 					"");
 	}
 
