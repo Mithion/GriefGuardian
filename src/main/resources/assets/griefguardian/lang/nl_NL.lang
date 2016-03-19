@@ -1,0 +1,8 @@
+griefguardian.commands.claimstart=Claim gestart.  Voer dit commando opnieuw uit op de tegengestelde hoek van wat je wilt claimen.
+griefguardian.commands.claimtoosmall=Deze claim is te klein.  Claims moeten minimaal 8x8 blokken zijn.
+griefguardian.commands.syncing=Je claims aan het synchroniseren zodat je ze kan zien. Ze zullen snel verschijnen.
+
+griefguardian.actionresult.success=Succes!
+griefguardian.actionresult.denied=Je hebt geen toestemming om dat te doen.
+griefguardian.actionresult.noclaim=Er is hier geen claim.
+griefguardian.actionresults.claimintersects=Deze claim overlapt met een andere claim. Probeer een ander stuk land te claimen.
